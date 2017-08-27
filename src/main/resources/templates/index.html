@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>トップページ</title>
+
+    <style>
+        .input-error {
+            border-color: red;
+        }
+    </style>
+</head>
+<body>
+
+<fieldset>
+    <legend>通常フォーム送信</legend>
+    <form method="post" th:action="@{/sendForm}" th:object="${d3Form}">
+
+        <span th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></span>
+        <input type="text" th:field="*{name}" th:errorclass="input-error">
+
+        <input type="submit" value="送信">
+    </form>
+</fieldset>
+
+<fieldset>
+    <legend>APIへJSON送信</legend>
+    <form method="post" th:action="@{#}">
+
+        <input type="text" id="json-input">
+
+        <input type="button" value="メソッド内例外ハンドラへ送信" id="sendJson">
+        <input type="button" value="グローバル例外ハンドラへ送信" id="sendJson2">
+    </form>
+</fieldset>
+
+<script>
+  var $jsonInput = document.getElementById('json-input');
+  var $sendJson = document.getElementById('sendJson');
+  var $sendJson2 = document.getElementById('sendJson2');
+
+  /**
+   * JSON送信を行います。
+   *
+   * @returns {Promise}
+   */
+  function doSendJson(path) {
+    return new Promise(function (resolve, reject) {
+      var xhr = new XMLHttpRequest();
+
+      xhr.open('POST', path);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.onload = function () {
+        alert(xhr.responseText);
+
+        if (xhr.status === 200) {
+          resolve();
+        } else {
+          reject();
+        }
+      };
+      xhr.send(JSON.stringify({name: $jsonInput.value}));
+    });
+  }
+
+  // JSONの送信ボタンがクリックされた際に呼び出されます
+  $sendJson.addEventListener('click', function () {
+    doSendJson('/sendJson');
+  });
+  $sendJson2.addEventListener('click', function () {
+    doSendJson('/sendJson2');
+  });
+
+</script>
+
+</body>
+</html>
